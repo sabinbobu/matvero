@@ -1,19 +1,30 @@
 /* =========================================================================
    MATVERO  —  CSS personalizat
-   Se lipeste integral in: Design / Tools / CSS
-   Functioneaza impreuna cu fisierul JS (matvero.js)
+   Se lipeste integral in: Design / Tools CSS/JS / CSS Global
+   Functioneaza impreuna cu fisierul JS (Javascript Global)
    -------------------------------------------------------------------------
-   SCRIS PENTRU EDITORUL PLATFORMEI:
-   fara variabile CSS (var), fara grid, fara gap / inset / clamp — editorul
-   nu le recunoaste si le marcheaza ca erori. Layout-ul e facut pe flexbox
-   si procente, ca sa treaca curat prin verificatorul de cod.
-   Avertismentele galbene de la "!important" sunt intentionate: fara ele nu
-   se pot suprascrie stilurile temei.
+   ORDINEA DE INCARCARE PE SITE (verificat pe live, 2026-08-25):
+   Gomag concateneaza toate intrarile active din Design / Tools CSS/JS
+   intr-un singur theme/100.css. Acest fisier este UN bloc din acel intreg —
+   exista alte ~512 linii inaintea lui (intrarea "CSS Global" veche/de baza),
+   incarcate PRIMELE. Blocul asta e concatenat ULTIMUL, deci orice regula de
+   aici bate orice regula de dinainte, la specificitate egala. De asta un
+   singur :root aici e suficient sa rezolve orice conflict de variabile din
+   blocul de dinainte — nu trebuie umblat in celalalt bloc.
+   Detalii complete (inclusiv ce strica Gomag in JS la salvare): vezi
+   GOMAG-CONSTRAINTS.md din acest repo.
    -------------------------------------------------------------------------
-   PALETA  (ca sa schimbi o culoare, dai Find & Replace pe tot fisierul)
-     #8C2D19   caramiziu — accent principal (butoane, linii, hover)
-     #B23A21   caramiziu deschis — hover pe accent
-     #6E2213   caramiziu inchis — hover pe butonul de cos
+   var(), gap, grid, clamp() functioneaza normal in editorul de CSS — nu sunt
+   respinse. Layout-ul de mai jos foloseste flexbox oricum, din alte motive
+   (compatibilitate cu structura fixa a temei), nu pentru ca editorul ar
+   cere-o. Avertismentele galbene de la "!important" sunt intentionate: fara
+   ele nu se pot suprascrie stilurile temei.
+   -------------------------------------------------------------------------
+   PALETA — o singura sursa de adevar: variabilele de mai jos. Schimbi
+   culoarea principala intr-un singur loc (--primary), nu prin Find & Replace.
+     --primary        #8C2D19   caramiziu — accent principal (butoane, linii, hover)
+     --primary-hover   #B23A21   caramiziu deschis — hover pe accent
+     --primary-active  #6E2213   caramiziu inchis — hover pe butonul de cos
      #15181B   antracit — fundal inchis, text principal
      #5B6570   gri — text secundar
      #E2E6EA   linie deschisa
@@ -40,6 +51,14 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
+:root{
+  --primary:#8C2D19;
+  --primary-light:#8C2D1970;
+  --primary-hover:#B23A21;
+  --primary-active:#6E2213;
+  --container-h:1320px;
+}
+
 
 /* ============================ 1. BAZA ================================== */
 body{
@@ -48,7 +67,11 @@ body{
   background:#FFFFFF !important;
   -webkit-font-smoothing:antialiased;
 }
-#wrapper{ overflow-x:hidden; }
+/* #wrapper pe flex-column + footer cu margin-top:auto = footer lipit de jos
+   pe paginile scurte (cos gol, categorie fara produse), fara sa umblam la
+   HTML: functioneaza indiferent cate elemente stau intre header si footer,
+   pentru ca doar ultimul copil (footer-ul) primeste margin-top:auto. */
+#wrapper{ overflow-x:hidden; display:flex !important; flex-direction:column; min-height:100vh; }
 #wrapper h1, #wrapper h2, #wrapper h3, #wrapper h4, #wrapper .title{
   font-family:'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
   letter-spacing:-0.02em;
@@ -57,9 +80,9 @@ body{
   color:#15181B;
   transition:color .18s ease, background-color .18s ease, border-color .18s ease;
 }
-#wrapper a:hover{ color:#8C2D19; text-decoration:none; }
+#wrapper a:hover{ color:var(--primary); text-decoration:none; }
 #wrapper .container-h{ max-width:1320px; }
-::selection{ background:#8C2D19; color:#FFFFFF; }
+::selection{ background:var(--primary); color:#FFFFFF; }
 
 
 /* ================= 2. ELEMENTE REUTILIZABILE =========================== */
@@ -74,7 +97,7 @@ body{
 .mv-kicker span.mv-kicker__bar{
   display:inline-block; width:22px; height:2px;
   margin-right:10px; margin-bottom:3px;
-  background:#8C2D19; vertical-align:middle;
+  background:var(--primary); vertical-align:middle;
 }
 .mv-kicker.on-dark{ color:rgba(255,255,255,.62); }
 
@@ -87,8 +110,8 @@ body{
   transition:transform .2s ease, background-color .2s ease, border-color .2s ease;
 }
 .mv-btn i{ margin-left:9px; font-size:13px; }
-.mv-btn--primary{ background:#8C2D19; color:#FFFFFF !important; }
-.mv-btn--primary:hover{ background:#B23A21; color:#FFFFFF !important; transform:translateY(-2px); }
+.mv-btn--primary{ background:var(--primary); color:#FFFFFF !important; }
+.mv-btn--primary:hover{ background:var(--primary-hover); color:#FFFFFF !important; transform:translateY(-2px); }
 .mv-btn--ghost{ background:transparent; color:#FFFFFF !important; border-color:rgba(255,255,255,.28); }
 .mv-btn--ghost:hover{ border-color:#FFFFFF; background:rgba(255,255,255,.08); color:#FFFFFF !important; transform:translateY(-2px); }
 
@@ -136,7 +159,7 @@ body{
   background:#15181B !important; color:#FFFFFF !important;
   border:0 !important; border-radius:3px !important;
 }
-.search-form-box .search-button:hover{ background:#8C2D19 !important; }
+.search-form-box .search-button:hover{ background:var(--primary) !important; }
 
 /* iconite cont / coș */
 .acount-section > ul{ margin:0; padding:0; text-align:right; }
@@ -145,16 +168,16 @@ body{
   display:block; padding:12px 13px; border-radius:4px;
   font-size:13px; font-weight:600; color:#15181B !important;
 }
-.acount-section > ul > li > a:hover{ background:#F6F4F1; color:#8C2D19 !important; }
+.acount-section > ul > li > a:hover{ background:#F6F4F1; color:var(--primary) !important; }
 .acount-section > ul > li > a i{ font-size:18px; }
 .acount-section .cart-header-btn > a{
   background:#15181B !important; color:#FFFFFF !important; padding:13px 18px !important;
 }
-.acount-section .cart-header-btn > a:hover{ background:#8C2D19 !important; color:#FFFFFF !important; }
+.acount-section .cart-header-btn > a:hover{ background:var(--primary) !important; color:#FFFFFF !important; }
 .acount-section .q-cart{
   position:absolute; top:2px; right:2px;
   min-width:19px; height:19px; line-height:17px; text-align:center;
-  background:#8C2D19; color:#FFFFFF; border:2px solid #FFFFFF;
+  background:var(--primary); color:#FFFFFF; border:2px solid #FFFFFF;
   border-radius:50%;
   font-family:'IBM Plex Mono', Menlo, monospace; font-size:10px; font-weight:600;
 }
@@ -179,22 +202,22 @@ body{
 }
 #main-menu ul.nav-menu > li > a:after{
   content:''; position:absolute; left:20px; right:20px; bottom:0; height:2px;
-  background:#8C2D19;
+  background:var(--primary);
   transform:scaleX(0); transform-origin:left;
   transition:transform .26s ease;
 }
 #main-menu ul.nav-menu > li > a:hover{ color:#FFFFFF !important; }
 #main-menu ul.nav-menu > li > a:hover:after{ transform:scaleX(1); }
 #main-menu ul.nav-menu > li.all-product-button > a{
-  background:#8C2D19 !important; color:#FFFFFF !important; font-weight:700 !important;
+  background:var(--primary) !important; color:#FFFFFF !important; font-weight:700 !important;
 }
-#main-menu ul.nav-menu > li.all-product-button > a:hover{ background:#B23A21 !important; }
+#main-menu ul.nav-menu > li.all-product-button > a:hover{ background:var(--primary-hover) !important; }
 #main-menu ul.nav-menu > li.all-product-button > a:after{ display:none; }
 
 .menu-dd{
   background:#FFFFFF !important;
   border:1px solid #E2E6EA !important;
-  border-top:2px solid #8C2D19 !important;
+  border-top:2px solid var(--primary) !important;
   border-radius:0 0 4px 4px !important;
   box-shadow:0 2px 4px rgba(21,24,27,.06), 0 22px 44px -18px rgba(21,24,27,.30) !important;
   padding:8px !important;
@@ -212,10 +235,10 @@ body{
 }
 .menu-dd li:last-child > a, .menu-dd li:last-child a.title{ border-bottom:0 !important; }
 .menu-dd li > a:hover, .menu-dd a.title:hover{
-  background:#F6F4F1; color:#8C2D19 !important;
+  background:#F6F4F1; color:var(--primary) !important;
 }
 .menu-dd p.title a{ color:#15181B !important; }
-.menu-dd p.title a:hover{ color:#8C2D19 !important; }
+.menu-dd p.title a:hover{ color:var(--primary) !important; }
 
 
 /* ================= 5. SECTIUNI INJECTATE DIN JS ======================== */
@@ -231,7 +254,7 @@ body{
 }
 .mv-hero:after{
   content:''; position:absolute; left:0; right:0; bottom:0; height:6px;
-  background-image:repeating-linear-gradient(-45deg, #8C2D19 0 12px, #15181B 12px 24px);
+  background-image:repeating-linear-gradient(-45deg, var(--primary) 0 12px, #15181B 12px 24px);
 }
 .mv-hero__grid{
   position:relative; z-index:2;
@@ -247,7 +270,7 @@ body{
 /* linia sta sub diacriticele coborate (ț, ș), nu peste ele */
 .mv-hero h1 em:after{
   content:''; position:absolute; left:0; right:0; bottom:-0.1em; height:0.09em;
-  background:#8C2D19;
+  background:var(--primary);
   transform:scaleX(0); transform-origin:left;
   animation:mvUnderline .9s .35s ease forwards;
 }
@@ -309,7 +332,7 @@ body{
 .mv-trust__no{
   display:block; margin-bottom:8px;
   font-family:'IBM Plex Mono', Menlo, monospace;
-  font-size:11px; font-weight:600; letter-spacing:0.1em; color:#8C2D19;
+  font-size:11px; font-weight:600; letter-spacing:0.1em; color:var(--primary);
 }
 .mv-trust__item b{ display:block; font-size:15px; font-weight:700; line-height:1.3; }
 .mv-trust__item p{ margin:4px 0 0; font-size:13.5px; line-height:1.5; color:#5B6570; }
@@ -324,7 +347,7 @@ body{
 .mv-head__link{
   display:inline-block; margin-top:14px;
   font-size:14px; font-weight:700;
-  border-bottom:2px solid #8C2D19; padding-bottom:3px;
+  border-bottom:2px solid var(--primary); padding-bottom:3px;
 }
 
 /* ---------------------- 5.3 CATEGORII --------------------------------- */
@@ -359,17 +382,17 @@ body{
   display:inline-block; margin-top:18px;
   font-family:'IBM Plex Mono', Menlo, monospace;
   font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
-  color:#8C2D19; transition:color .3s ease, letter-spacing .3s ease;
+  color:var(--primary); transition:color .3s ease, letter-spacing .3s ease;
 }
 .mv-cat__go i{ margin-left:8px; }
 .mv-cat:hover h3, .mv-cat:hover .mv-cat__no, .mv-cat:hover .mv-cat__go{ color:#FFFFFF !important; }
 .mv-cat:hover p{ color:rgba(255,255,255,.7); }
 .mv-cat:hover .mv-cat__go{ letter-spacing:0.22em; }
 /* prima placa, pe accent */
-.mv-cat--accent{ background:#8C2D19; border-right-color:#8C2D19; }
+.mv-cat--accent{ background:var(--primary); border-right-color:var(--primary); }
 .mv-cat--accent h3, .mv-cat--accent .mv-cat__no, .mv-cat--accent .mv-cat__go{ color:#FFFFFF !important; }
 .mv-cat--accent p{ color:rgba(255,255,255,.78); }
-.mv-cat--accent:hover{ background:#6E2213; }
+.mv-cat--accent:hover{ background:var(--primary-active); }
 
 /* ---------------------- 5.4 DE CE MATVERO ---------------------------- */
 .mv-why{
@@ -394,7 +417,7 @@ body{
   color:#CDD4DA; letter-spacing:-0.04em;
   transition:color .3s ease;
 }
-.mv-why__cell:hover .mv-why__n{ color:#8C2D19; }
+.mv-why__cell:hover .mv-why__n{ color:var(--primary); }
 .mv-why__cell h3{
   margin:20px 0 8px !important;
   font-size:20px !important; font-weight:700 !important; letter-spacing:-0.02em;
@@ -453,7 +476,7 @@ body{
 .mv-ban__no{
   position:absolute; top:0; left:0; z-index:3;
   padding:9px 13px;
-  background:#8C2D19; color:#FFFFFF;
+  background:var(--primary); color:#FFFFFF;
   font-family:'IBM Plex Mono', Menlo, monospace;
   font-size:11px; font-weight:600; letter-spacing:0.16em;
 }
@@ -467,7 +490,7 @@ body{
 }
 .mv-ban__cap:before{
   content:''; position:absolute; top:-1px; left:0; width:100%; height:2px;
-  background:#8C2D19;
+  background:var(--primary);
   transform:scaleX(0); transform-origin:left;
   transition:transform .45s ease;
 }
@@ -478,7 +501,7 @@ body{
 .mv-ban__cap span{
   font-family:'IBM Plex Mono', Menlo, monospace;
   font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
-  color:#8C2D19; white-space:nowrap; padding-left:18px;
+  color:var(--primary); white-space:nowrap; padding-left:18px;
   transition:color .3s ease, letter-spacing .3s ease;
 }
 .mv-ban__cap span i{ margin-left:8px; }
@@ -498,7 +521,7 @@ body{
 /* un singur filet sub titlurile de sectiune, indiferent daca tema pune hr */
 .title-carousel .title:after,
 .wordpress-articles-h .titleComponent h1:after{
-  content:''; display:block; width:64px; height:3px; margin-top:16px; background:#8C2D19;
+  content:''; display:block; width:64px; height:3px; margin-top:16px; background:var(--primary);
 }
 .title-carousel hr, .wordpress-articles-h hr{ display:none !important; }
 .default-slider{ padding:84px 0 0 !important; }
@@ -540,7 +563,7 @@ body{
   font-size:15.5px !important; font-weight:700 !important; line-height:1.35 !important;
   color:#15181B !important; letter-spacing:-0.01em;
 }
-.product-box .title-holder .title:hover{ color:#8C2D19 !important; }
+.product-box .title-holder .title:hover{ color:var(--primary) !important; }
 .product-box .price{ margin:14px 0 0 !important; }
 .product-box .price .text-main{
   font-size:22px !important; font-weight:800 !important;
@@ -572,9 +595,9 @@ body{
 .product-box .bottom-side-box > a:last-child,
 .product-box .bottom-side-box > button:last-child{ margin-bottom:0 !important; }
 .product-box .details-button{ background:#15181B !important; color:#FFFFFF !important; }
-.product-box .details-button:hover{ background:#8C2D19 !important; color:#FFFFFF !important; }
-.product-box .add-cart-button{ background:#8C2D19 !important; color:#FFFFFF !important; }
-.product-box .add-cart-button:hover{ background:#6E2213 !important; color:#FFFFFF !important; }
+.product-box .details-button:hover{ background:var(--primary) !important; color:#FFFFFF !important; }
+.product-box .add-cart-button{ background:var(--primary) !important; color:#FFFFFF !important; }
+.product-box .add-cart-button:hover{ background:var(--primary-active) !important; color:#FFFFFF !important; }
 .product-box .bottom-side-box i{ margin-right:8px; font-size:13px; }
 .product-icon-box .-g-product-icon{
   border-radius:2px !important;
@@ -610,7 +633,7 @@ body{
   font-size:19px !important; font-weight:700 !important; line-height:1.28 !important;
   letter-spacing:-0.02em; color:#15181B !important;
 }
-.-g-post-slide-title a:hover{ color:#8C2D19 !important; }
+.-g-post-slide-title a:hover{ color:var(--primary) !important; }
 .-g-post-slide-content{ font-size:14.5px !important; line-height:1.65 !important; color:#5B6570 !important; }
 /* linkul sta jos (mutat din text de fisierul JS) */
 .-g-post-readMore{
@@ -618,17 +641,20 @@ body{
   width:auto !important; margin-top:auto !important; padding:18px 0 3px 0;
   font-family:'IBM Plex Mono', Menlo, monospace !important;
   font-size:11px !important; letter-spacing:0.16em; text-transform:uppercase;
-  color:#8C2D19 !important; text-decoration:none !important;
+  color:var(--primary) !important; text-decoration:none !important;
   border-bottom:1px solid rgba(140,45,25,.35);
 }
-.-g-post-readMore:hover{ border-bottom-color:#8C2D19; }
+.-g-post-readMore:hover{ border-bottom-color:var(--primary); }
 
 
 /* ======================== 9. FOOTER ================================== */
-#-g-footer-general{ background:#15181B !important; color:rgba(255,255,255,.7) !important; }
+/* margin-top:auto pe flex-column din #wrapper (sectiunea 1) tine footer-ul
+   lipit de subsolul ferestrei pe paginile scurte, indiferent cate sectiuni
+   sunt inaintea lui. */
+#-g-footer-general{ background:#15181B !important; color:rgba(255,255,255,.7) !important; margin-top:auto !important; }
 #-g-footer-general:before{
   content:''; display:block; height:4px;
-  background-image:repeating-linear-gradient(-45deg, #8C2D19 0 10px, #22272B 10px 20px);
+  background-image:repeating-linear-gradient(-45deg, var(--primary) 0 10px, #22272B 10px 20px);
 }
 #-g-footer-general .main-footer{ padding:64px 15px 52px !important; }
 /* tema foloseste coloane cu latime fixa (col-md-3); cand tidyFooter ascunde
@@ -660,7 +686,7 @@ body{
 #-g-footer-general .copyright a{ color:rgba(255,255,255,.62) !important; }
 
 #top a{
-  background:#8C2D19 !important; color:#FFFFFF !important;
+  background:var(--primary) !important; color:#FFFFFF !important;
   border-radius:4px !important;
   box-shadow:0 2px 4px rgba(21,24,27,.06), 0 22px 44px -18px rgba(21,24,27,.30) !important;
 }
@@ -680,7 +706,7 @@ body{
 /* bara de progres la scroll */
 #mv-progress{
   position:fixed; top:0; left:0; height:3px; width:0;
-  background:#8C2D19; z-index:9999;
+  background:var(--primary); z-index:9999;
   transition:width .1s linear;
 }
 

@@ -36,6 +36,28 @@ a port — `preview.py` defaults to 8080 with no argument, so `pkill -f
 "preview.py 8080"` matches nothing and leaves the server orphaned, which makes
 the next run fail to bind.
 
+### The automated tab is hidden — IntersectionObserver never fires
+
+Verified: in the browser-automation tab, `document.visibilityState` is
+`hidden`, `document.hasFocus()` is false, and `requestAnimationFrame` does not
+run. Chrome therefore **defers IntersectionObserver indefinitely**. A plain
+observer on a fully-visible element never fires.
+
+Consequences you must not get wrong:
+
+- Anything gated on `.mv-in` stays at `opacity: 0` forever in this tab. That
+  is an artifact of the harness, **not** a site bug. Do not report it as one.
+- `document.querySelectorAll('.mv-reveal:not(.mv-in)').length` measures
+  nothing useful here. Ignore it.
+- Screenshots still paint, so reveal-gated content photographs as *missing*.
+  A before/after comparison of reveal code will therefore exaggerate the
+  difference: what is really a brief flash in a real browser looks like
+  permanent absence here.
+
+To judge reveal behaviour honestly, either read the CSS/JS logic directly, or
+ask the user to look at a real browser tab. Never conclude "permanently
+invisible" from this environment.
+
 ## 2. Breakpoints
 
 | Width | What it exercises |
@@ -83,17 +105,21 @@ Hunt these specifically. Each one shipped here at least once:
   many. Distinguish "the CSS is broken" from "the catalog is small" — they
   look identical in a screenshot and only one is worth fixing.
 
-## 4. Gomag editor constraints
+## 4. Gomag constraints
 
-The platform's CSS editor rejects modern syntax. From the `Site.css` header:
+Read `GOMAG-CONSTRAINTS.md` — it is verified against the live site. Summary:
 
-- No `var()`, no `grid`, no `gap`, no `inset`, no `clamp`
-- Flexbox and percentages only
-- `!important` warnings in the editor are intentional — without them the
-  theme wins
-
-Write CSS that would have been valid in 2016. This is not a style preference;
-non-conforming CSS gets flagged as an error and won't save.
+- **CSS is safe.** It round-trips byte-identical. `var()`, `gap`, `grid` and
+  `clamp` all work; the live stylesheet uses `var()` 38 times. (An earlier
+  claim in this repo that the editor rejects them was false.)
+- **JS gets corrupted on save.** HTML entities are decoded, backslashes are
+  doubled (so regex escapes break), and everything is wrapped in a silent
+  `try/catch`. Write entities as `'&' + 'amp;'` and backslashes via
+  `String.fromCharCode(92)`.
+- **`theme/100.*` is a concatenation** of the entries in Design > Tools
+  CSS/JS. Our block is appended last, so it can override everything before
+  it — including the five stacked `:root` blocks in the earlier chunk.
+- `!important` warnings in the editor are expected.
 
 ## 5. Fix rules
 

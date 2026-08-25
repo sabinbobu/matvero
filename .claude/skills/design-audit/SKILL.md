@@ -31,7 +31,10 @@ existed only in pixels. Reading `Site.css` would never have surfaced them.
 Never report a *visual* claim you got from static reading. Render it, screenshot
 it, then describe what you saw.
 
-Stop the server when done: `pkill -f "preview.py 8080"`.
+Stop the server when done: `pkill -f preview.py`. Don't narrow the pattern to
+a port — `preview.py` defaults to 8080 with no argument, so `pkill -f
+"preview.py 8080"` matches nothing and leaves the server orphaned, which makes
+the next run fail to bind.
 
 ## 2. Breakpoints
 

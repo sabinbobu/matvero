@@ -10,6 +10,8 @@
    4. Injecteaza blocul "De ce Matvero"
    5. Injecteaza banda de cerere oferta inainte de footer
    6. Header compact la scroll, bara de progres, reveal la scroll
+   7. Telefon in header (global, doar daca CFG.telefon e completat)
+   8. Placeholder-ul din cautare (global)
    ========================================================================= */
 (function () {
   'use strict';
@@ -32,8 +34,14 @@
 
     // cate caractere pastram din textul unui articol pe cardurile de blog
     blogMaxChars: 165,
+    // pusa in header (langa cont/cos), NU doar in banda de oferta — la
+    // echipe de montaj comanda telefonica ramane un canal major. Lasa gol
+    // si nu apare nimic (nu inventam un numar).
     telefon:     '',           // ex. '0722 000 000' — lasa gol si butonul dispare
     email:       '',           // ex. 'comenzi@matvero.ro'
+
+    // placeholder-ul din casetele de cautare (desktop + mobil)
+    searchPlaceholder: 'Caută: silicon neutru, șuruburi autoforante…',
 
     hero: {
       kicker: 'Materiale · Adevărate',
@@ -48,9 +56,30 @@
       ctaSecundar:  { text: 'Cere ofertă pentru firmă', url: '/contact' },
       meta: [
         { sus: 'Livrare 24–48h', jos: 'Expediere' },
-        { sus: 'Consultanță tehnică', jos: 'Suport' },
-        { sus: 'Torggler', jos: 'Brand partener' }
+        { sus: 'Consultanță tehnică', jos: 'Suport' }
       ],
+      // scos din meta (unde era doar text "Torggler / Brand partener" si
+      // pierdea toata valoarea) si tratat separat, cu spatiu pentru logo.
+      // Pune aici link-ul unui logo Torggler GAZDUIT (nu un fisier local —
+      // trebuie intai incarcat in Gomag si copiat URL-ul rezultat). Lasa
+      // gol si ramane textul de mai jos, cu tratament vizual mai puternic.
+      // "linie" e loc pentru o afirmatie reala ("importator direct" etc.)
+      // — nu am pus-o implicit, pentru ca nu e ceva ce pot confirma.
+      brand: { logo: '', nume: 'Torggler', linie: 'Brand partener' },
+
+      // cardul de produs din panoul din dreapta — un SKU real, nu specificatii
+      // generice. Foto + URL sunt cele deja live pe site (verificate, nu
+      // inventate). Daca vrei fotografia mai buna (Cartus-Lamiera.jpeg,
+      // 2528×1686) — e prea mare ca sa fie inclusa direct in acest fisier;
+      // incarc-o intai in Gomag (Continut / Fisiere sau la produs) si
+      // inlocuieste "img" cu link-ul rezultat.
+      product: {
+        img:  'https://gomagcdn.ro/domains3/matvero/files/product/medium/torggler-lamiera-silicon-neutru-pentru-tabla-si-panouri-termoizolante-040098.webp',
+        nume: 'Torggler Lamiera – Silicon neutru pentru tablă și panouri termoizolante',
+        pret: '50,00 Lei',
+        stoc: 'În stoc',
+        url:  '/torggler-lamiera-silicon-neutru-pentru-tablă-și-panouri-termoizolante.html'
+      },
       panelTitlu: 'Selecție tehnică',
       specs: [
         { nume: 'Reticulare neutră',        val: 'fără miros acid' },
@@ -127,9 +156,24 @@
     var meta = h.meta.map(function (m) {
       return '<div><strong>' + esc(m.sus) + '</strong><span>' + esc(m.jos) + '</span></div>';
     }).join('');
+    var b = h.brand;
+    var brandBlock = b.logo
+      ? '<div class="mv-hero__brand"><img src="' + esc(b.logo) + '" alt="' + esc(b.nume) + '"></div>'
+      : '<div class="mv-hero__brand"><strong>' + esc(b.nume) + '</strong><span>' + esc(b.linie) + '</span></div>';
     var specs = h.specs.map(function (s) {
       return '<div class="mv-hero__spec"><b>' + esc(s.nume) + '</b><span>' + esc(s.val) + '</span></div>';
     }).join('');
+    var p = h.product;
+    // panoul din dreapta e acum un SKU real (foto+nume+pret+stoc), specs-urile
+    // raman dedesubt, ca sa se citeasca drept "specificatiile ACESTUI produs"
+    var productBlock = '<a class="mv-hero__product" href="' + esc(p.url) + '">' +
+      '<img class="mv-hero__product-img" src="' + esc(p.img) + '" alt="' + esc(p.nume) + '" loading="lazy">' +
+      '<div class="mv-hero__product-info">' +
+        '<span class="mv-hero__product-stoc">' + esc(p.stoc) + '</span>' +
+        '<h4 class="mv-hero__product-nume">' + esc(p.nume) + '</h4>' +
+        '<span class="mv-hero__product-pret">' + esc(p.pret) + '</span>' +
+      '</div>' +
+    '</a>';
 
     return el('section', 'mv-hero',
       '<div class="mv-hero__grid">' +
@@ -141,10 +185,11 @@
             '<a class="mv-btn mv-btn--primary" href="' + esc(h.ctaPrimar.url) + '">' + esc(h.ctaPrimar.text) + ' <i class="fa fa-angle-right"></i></a>' +
             '<a class="mv-btn mv-btn--ghost" href="' + esc(h.ctaSecundar.url) + '">' + esc(h.ctaSecundar.text) + '</a>' +
           '</div>' +
-          '<div class="mv-hero__meta">' + meta + '</div>' +
+          '<div class="mv-hero__meta">' + meta + brandBlock + '</div>' +
         '</div>' +
         '<aside class="mv-hero__panel mv-reveal" data-mv-delay="2">' +
-          '<h3>' + esc(h.panelTitlu) + '</h3>' + specs +
+          productBlock +
+          '<h3 class="mv-hero__spec-title">' + esc(h.panelTitlu) + '</h3>' + specs +
         '</aside>' +
       '</div>');
   }
@@ -409,6 +454,30 @@
     });
   }
 
+  /* ------------------- telefon in header (global) ------------------ */
+  // ruleaza pe orice pagina (headerul e global) — dar nu inventeaza un
+  // numar: fara CFG.telefon completat, nu apare nimic.
+  function insertHeaderPhone() {
+    if (!CFG.telefon) return;
+    var ul = q('.acount-section > ul');
+    if (!ul || q('.mv-header-phone')) return;
+    var li = el('li', 'mv-header-phone',
+      '<a href="tel:' + esc(CFG.telefon.replace(/\s+/g, '')) + '" aria-label="Sună-ne">' +
+        '<i class="fa fa-phone" aria-hidden="true"></i><span>' + esc(CFG.telefon) + '</span>' +
+      '</a>');
+    ul.insertBefore(li, ul.firstChild);
+  }
+
+  /* -------------------- placeholder cautare (global) ---------------- */
+  function setSearchPlaceholder() {
+    var ph = CFG.searchPlaceholder;
+    if (!ph) return;
+    ['#_autocompleteSearchMainHeader', '#_autocompleteSearchMobileToggle'].forEach(function (sel) {
+      var input = q(sel);
+      if (input) input.setAttribute('placeholder', ph);
+    });
+  }
+
   /* --------------------------- 6. MISCARE ----------------------- */
   function reveals() {
     var targets = qa('.mv-reveal').concat(
@@ -461,6 +530,8 @@
     enhanceBanners();
     tidyBlogCards();
     tidyFooter();
+    insertHeaderPhone();
+    setSearchPlaceholder();
     // tema incarca imaginile lazy: mai doua treceri, ieftine
     setTimeout(fitProductImages, 400);
     setTimeout(fitProductImages, 1500);

@@ -54,6 +54,21 @@ Consequences you must not get wrong:
   difference: what is really a brief flash in a real browser looks like
   permanent absence here.
 
+**Same root cause, a second symptom:** `window.scrollTo()` and
+`.scrollIntoView()` also silently do nothing in this tab — `scrollY` stays at
+0 even though the call returns normally and `document.hasFocus()` is true.
+Verified by clicking a real in-page anchor link (`href="#mv-categorii"`):
+the click landed, but the page never moved. Testing that same anchor by
+navigating directly to `url#id` *did* set `location.hash` correctly, which is
+enough to confirm the target element and `scroll-margin-top` are wired right
+— just don't expect to see it scroll.
+
+If you need to prove a smooth-scroll or anchor-jump actually moves the
+viewport, don't use `scrollTo`/`scrollIntoView`/a link click and then
+screenshot. Either: use the `computer` tool's `scroll` action (a real wheel
+event, not a JS call — this is why footer/category screenshots earlier in
+this project worked fine), or ask the user to click it in their own browser.
+
 To judge reveal behaviour honestly, either read the CSS/JS logic directly, or
 ask the user to look at a real browser tab. Never conclude "permanently
 invisible" from this environment.

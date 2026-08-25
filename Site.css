@@ -61,6 +61,8 @@
 
 
 /* ============================ 1. BAZA ================================== */
+/* scroll lin pentru ancora #mv-categorii din CTA-ul din hero */
+html{ scroll-behavior:smooth; }
 body{
   font-family:'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
   color:#15181B !important;
@@ -352,7 +354,11 @@ body{
 
 /* ---------------------- 5.3 CATEGORII --------------------------------- */
 /* gril\u0103 continua, cu linii de 1px intre placi (nu carduri separate) */
-.mv-cats{ padding:84px 0 8px; }
+/* scroll-margin-top: cand se ajunge aici din ancora #mv-categorii (CTA-ul
+   din hero), headerul lipit (fix-nav) nu trebuie sa acopere titlul sectiunii.
+   140px e o estima generoasa (bara de sus + meniul, in starea comprimata la
+   scroll) — verifica pe site daca headerul iti creste peste atat. */
+.mv-cats{ padding:84px 0 8px; scroll-margin-top:140px; }
 .mv-cats__grid{
   display:flex; flex-wrap:wrap;
   border:1px solid #E2E6EA; border-radius:4px; overflow:hidden;

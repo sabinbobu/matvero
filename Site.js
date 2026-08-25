@@ -39,7 +39,12 @@
       kicker: 'Materiale · Adevărate',
       titlu:  'Etanșări și fixaje care <em>țin cât construcția</em>.',
       lead:   'Siliconi neutri, etanșanți profesionali și fixaje de acoperiș selectate pentru meseriași. Fișe tehnice complete, stoc real, fără compromisuri de chimie.',
-      ctaPrimar:    { text: 'Vezi produsele', url: '/produse' },
+      // ancora spre grila de categorii de mai jos, NU spre /produse: acea
+      // pagina se numeste chiar "Toate Produsele" — identic cu butonul de
+      // meniu de deasupra, care e oricum doar un declansator de dropdown
+      // (href="#mm-2", nu navigheaza). Doua butoane cu acelasi mesaj in
+      // acelasi ecran citesc ca o dublura, chiar daca fac lucruri diferite.
+      ctaPrimar:    { text: 'Vezi categoriile', url: '#mv-categorii' },
       ctaSecundar:  { text: 'Cere ofertă pentru firmă', url: '/contact' },
       meta: [
         { sus: 'Livrare 24–48h', jos: 'Expediere' },
@@ -188,13 +193,18 @@
       '</a>';
     }).join('');
 
-    return el('section', 'mv-cats mv-sec',
+    var sec = el('section', 'mv-cats mv-sec',
       '<div class="mv-head mv-reveal">' +
         kicker(CFG.categoriiKicker) +
         '<h2>' + esc(CFG.categoriiTitlu) + '</h2>' +
         '<a class="mv-head__link" href="' + esc(CFG.urlProduse) + '">Toate produsele</a>' +
       '</div>' +
       '<div class="mv-cats__grid mv-reveal" data-mv-delay="1">' + tiles + '</div>');
+    // id de ancora pentru CTA-ul din hero (CFG.hero.ctaPrimar.url) — vezi
+    // nota din CFG despre de ce hero-ul nu duce spre acelasi loc ca
+    // "Toate Produsele" din meniu.
+    sec.id = 'mv-categorii';
+    return sec;
   }
 
   /* --------------------------- 4. DE CE MATVERO ----------------- */

@@ -631,6 +631,11 @@ body{
   background-image:repeating-linear-gradient(-45deg, #8C2D19 0 10px, #22272B 10px 20px);
 }
 #-g-footer-general .main-footer{ padding:64px 15px 52px !important; }
+/* tema foloseste coloane cu latime fixa (col-md-3); cand tidyFooter ascunde
+   o coloana goala, latimea ei ramane blocata si rupe randul in doua — trecem
+   randul pe flex ca sa se refaca latimea intre coloanele care raman. */
+#-g-footer-general .main-footer .row{ display:flex !important; flex-wrap:wrap; }
+#-g-footer-general .main-footer .row > .col{ flex:1 1 220px; }
 #-g-footer-general .col .title, #-g-footer-general p.title{
   color:#FFFFFF !important;
   font-family:'IBM Plex Mono', Menlo, monospace !important;

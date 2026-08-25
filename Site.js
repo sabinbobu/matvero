@@ -104,7 +104,7 @@
   function q(sel, ctx) { return (ctx || document).querySelector(sel); }
   function qa(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
-    return { '&': '&', '<': '<', '>': '>', '"': '"' }[c];
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
   }); }
   function isHome() {
     return document.body.classList.contains('-g-pagetype-homepage');
@@ -389,12 +389,13 @@
     });
   }
 
-  // coloanele de footer fara nicio legatura lasau un gol mare pe tableta
+  // coloanele de footer fara niciun link (titlu fara linkuri sau coloana
+  // complet goala) lasau un gol mare pe tableta si desktop
   function tidyFooter() {
     var f = q('#-g-footer-general');
     if (!f) return;
     qa('.col', f).forEach(function (col) {
-      if (q('.title', col) && !q('a', col)) col.style.display = 'none';
+      if (!q('a', col)) col.style.display = 'none';
     });
   }
 
@@ -413,7 +414,14 @@
         if (e.isIntersecting) { e.target.classList.add('mv-in'); io.unobserve(e.target); }
       });
     }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-    targets.forEach(function (n) { io.observe(n); });
+    targets.forEach(function (n) {
+      if (n.classList.contains('mv-in')) return;
+      // ce e deja in fereastra la incarcare nu trebuie sa astepte observer-ul
+      // — altfel apare un gol (hero, categorii) pana se declanseaza reveal-ul
+      var r = n.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) n.classList.add('mv-in');
+      else io.observe(n);
+    });
   }
 
   // Doar bara de progres. Header-ul lipit la scroll este deja gestionat de

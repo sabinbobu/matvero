@@ -42,6 +42,19 @@ through these two files.
   the full contents of `Site.css`/`Site.js` over the existing editor
   content, replacing it wholesale.
 
+## Rendering the site locally
+
+`python3 preview.py` serves the homepage at `http://localhost:8080`, with the
+Gomag-hosted `theme/100.css` / `theme/100.js` swapped for the local
+`Site.css` / `Site.js`. Theme CSS/JS, jQuery, fonts and images still come from
+Gomag's CDN, so the render matches production. Edit a file, refresh, see it.
+
+`mobile-frame.html` (served at `/mobile-frame.html`) is a fixed-width iframe
+harness for narrow breakpoints — resizing the Chrome window does not reliably
+change `window.innerWidth`.
+
+Run `/design-audit` for the full audit-and-fix procedure.
+
 ## `SourceCode.html`
 
 Raw server-rendered HTML of the homepage — a "view source" style snapshot
